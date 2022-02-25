@@ -24,6 +24,18 @@ create table prod_quan_audit(
 	audit_date date
 );
 
+create table roles(
+	roleId varchar(50) PRIMARY KEY,
+	rolename varchar(100)
+);
+
+create table employees(
+	empId varchar(50) PRIMARY KEY,
+	emp_name varchar(100),
+	date_of_joining date,
+	roleId varchar(50) REFERENCES roles(roleId)
+);
+
 INSERT INTO category (cid, cname) VALUES
 (123, 'Appliances'),
 (234, 'Electronics'),
@@ -47,12 +59,34 @@ INSERT INTO orders (orderId, purc_amt, order_date, pid) VALUES
 ('692', 150000, '2022-02-09', 'E51'),
 ('719', 43000, '2022-01-07', 'A41');
 
+INSERT INTO roles (roleId, rolename) VALUES
+('1037', 'Super Admin'),
+('2048', 'Admin'),
+('3056', 'Manager'),
+('4096', 'Developer'),
+('6020', 'Tester');
+
+INSERT INTO employees (empId, emp_name, date_of_joining, roleId) VALUES
+('IN01', 'Abhishek', '2019-01-21', '2048'),
+('IN05', 'Aditya', '2019-03-26', '4096'),
+('IN11', 'Devansh', '2018-09-24', '1037'),
+('IN18', 'Harsh', '2020-04-16', '3056'),
+('IN21', 'Prakhar', '2020-06-10', '6020'),
+('IN45', 'Akansha', '2021-05-07', '2048');
+
 create or replace view orderinfo as
 select p.pid, p.pname, o.orderId, o.purc_amt, o.order_date
 from product p inner join orders o
 on p.pid = o.pid;
 
 select * from orderinfo;
+
+create or replace view empinfo as
+select e.*, r.rolename
+from roles r inner join employees e
+on r.roleId = e.roleId;
+
+select * from empinfo;
 
 create or replace function fn_quant_chck()
 returns trigger
@@ -72,4 +106,4 @@ create trigger trigger_quan_chck
 after insert
 on orders
 for each row 
-execute procedure fn_quant_chck();
+execute procedure fn_quant_chck(); 
